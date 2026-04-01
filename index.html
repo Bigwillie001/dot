@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>dot · a brand that stays true to itself</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@400;700;800&family=Syne+Mono&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7fdf9;
+    --green: #5eead4;
+    --green-main: #6ee7b7;
+    --green-bright: #4ade80;
+    --green-deep: #16a34a;
+    --green-light: #d1fae5;
+    --green-mid: #a7f3d0;
+    --green-dim: rgba(94,234,212,0.12);
+    --border: rgba(94,234,212,0.2);
+    --dark: #0a1a10;
+    --muted: #4b7a5e;
+    --text-dim: #86a896;
+    --surface: rgba(255,255,255,0.9);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--dark);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  #bg-canvas {
+    position: fixed; inset: 0;
+    z-index: 0; pointer-events: none;
+  }
+
+  .wrap { position: relative; z-index: 2; }
+
+  /* ── NAV ── */
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.88);
+    position: sticky; top: 0; z-index: 100;
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--dark);
+    letter-spacing: -0.03em;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+
+  .nav-logo .dot-icon {
+    width: 14px; height: 14px;
+    background: var(--green-bright);
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 10px rgba(74,222,128,0.5);
+    animation: pulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100%{box-shadow:0 0 8px rgba(74,222,128,0.4);transform:scale(1)}
+    50%{box-shadow:0 0 20px rgba(74,222,128,0.7);transform:scale(1.1)}
+  }
+
+  .nav-links { display: flex; gap: 0.7rem; align-items: center; }
+
+  .nav-btn {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    padding: 0.45rem 1rem;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    text-decoration: none;
+    border-radius: 20px;
+    transition: all 0.3s;
+    text-transform: uppercase;
+  }
+
+  .nav-btn:hover {
+    border-color: var(--green-bright);
+    color: var(--green-deep);
+    background: var(--green-light);
+  }
+
+  .nav-btn.buy-nav {
+    background: var(--dark);
+    border-color: var(--dark);
+    color: white;
+  }
+
+  .nav-btn.buy-nav:hover {
+    background: var(--green-deep);
+    border-color: var(--green-deep);
+    box-shadow: 0 4px 18px rgba(22,163,74,0.3);
+    transform: translateY(-1px);
+    color: white;
+  }
+
+  /* ── TICKER ── */
+  .ticker {
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 0;
+    background: linear-gradient(90deg, var(--green-light), #f0fdf4, var(--green-light));
+  }
+
+  .ticker-inner {
+    display: flex; gap: 3rem;
+    animation: ticker 25s linear infinite;
+    white-space: nowrap; width: max-content;
+  }
+
+  .ticker-item {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .ticker-item span { color: var(--green-deep); }
+
+  @keyframes ticker {
+    from{transform:translateX(0)}
+    to{transform:translateX(-50%)}
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 5rem 2rem 6rem;
+    position: relative;
+    gap: 0;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.4em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  /* BIG DOT */
+  .big-dot-wrap {
+    position: relative;
+    width: 240px; height: 240px;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+
+  .big-dot-ring {
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    border: 1px solid rgba(110,231,183,0.25);
+    animation: ringPulse 3s ease-in-out infinite;
+  }
+
+  .big-dot-ring2 {
+    position: absolute;
+    inset: -40px;
+    border-radius: 50%;
+    border: 1px solid rgba(110,231,183,0.12);
+    animation: ringPulse 3s 0.8s ease-in-out infinite;
+  }
+
+  @keyframes ringPulse {
+    0%,100%{transform:scale(1);opacity:0.6}
+    50%{transform:scale(1.04);opacity:1}
+  }
+
+  .big-dot-img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    border-radius: 50%;
+    position: relative; z-index: 1;
+    filter: drop-shadow(0 20px 50px rgba(74,222,128,0.35));
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-12px)}
+  }
+
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(5rem, 16vw, 11rem);
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: var(--dark);
+    margin-bottom: 1.2rem;
+    position: relative;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-title .glitch { position: relative; }
+  .hero-title .glitch::before,
+  .hero-title .glitch::after {
+    content: attr(data-text);
+    position: absolute; inset: 0;
+    color: var(--dark);
+  }
+  .hero-title .glitch::before {
+    clip-path: polygon(0 20%,100% 20%,100% 40%,0 40%);
+    animation: g1 6s infinite; opacity: 0;
+    color: var(--green-bright);
+  }
+  .hero-title .glitch::after {
+    clip-path: polygon(0 65%,100% 65%,100% 80%,0 80%);
+    animation: g2 6s infinite; opacity: 0;
+    color: var(--green-deep);
+  }
+
+  @keyframes g1 {
+    0%,92%,100%{opacity:0;transform:translateX(0)}
+    93%{opacity:0.8;transform:translateX(-3px)}
+    95%{opacity:0.8;transform:translateX(3px)}
+    97%{opacity:0;transform:translateX(0)}
+  }
+  @keyframes g2 {
+    0%,92%,100%{opacity:0;transform:translateX(0)}
+    93%{opacity:0.8;transform:translateX(3px)}
+    95%{opacity:0.8;transform:translateX(-3px)}
+    97%{opacity:0;transform:translateX(0)}
+  }
+
+  .hero-sub {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+    color: var(--muted);
+    max-width: 420px;
+    line-height: 1.8;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+
+  .hero-sub span { color: var(--dark); font-weight: 500; }
+
+  .hero-ctas {
+    display: flex; gap: 0.8rem;
+    flex-wrap: wrap; justify-content: center;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.8s 0.4s ease both;
+  }
+
+  .btn-green {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.85rem 2rem;
+    background: var(--dark);
+    border: none; color: white;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600; font-size: 0.85rem;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 18px rgba(10,26,16,0.2);
+  }
+
+  .btn-green:hover {
+    background: var(--green-deep);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(22,163,74,0.3);
+  }
+
+  .btn-outline {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.85rem 2rem;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-weight: 500; font-size: 0.85rem;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.3s;
+  }
+
+  .btn-outline:hover {
+    border-color: var(--green-bright);
+    color: var(--green-deep);
+    background: var(--green-light);
+    transform: translateY(-2px);
+  }
+
+  /* CA BOX */
+  .ca-box {
+    display: inline-flex; align-items: center; gap: 0.7rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0.75rem 1.1rem;
+    cursor: pointer; transition: all 0.3s;
+    max-width: 90vw;
+    box-shadow: 0 2px 15px rgba(94,234,212,0.08);
+    animation: fadeUp 0.8s 0.5s ease both;
+  }
+
+  .ca-box:hover {
+    border-color: var(--green-bright);
+    box-shadow: 0 4px 20px rgba(74,222,128,0.15);
+  }
+
+  .ca-label {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.55rem; letter-spacing: 0.2em;
+    color: var(--green-deep); text-transform: uppercase;
+    background: var(--green-light);
+    padding: 0.2rem 0.5rem; border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .ca-address {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.58rem; color: var(--muted);
+    word-break: break-all;
+  }
+
+  .ca-copy {
+    flex-shrink: 0; width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--green-light);
+    border-radius: 6px; color: var(--green-deep);
+    transition: all 0.2s;
+  }
+
+  .ca-box:hover .ca-copy { background: var(--green-bright); color: white; }
+
+  .scroll-hint {
+    position: absolute; bottom: 2.5rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column;
+    align-items: center; gap: 0.5rem;
+    animation: fadeUp 0.8s 1.2s ease both;
+  }
+
+  .scroll-hint span {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.5rem; letter-spacing: 0.3em;
+    color: var(--text-dim); text-transform: uppercase;
+  }
+
+  .scroll-line {
+    width: 1px; height: 35px;
+    background: linear-gradient(to bottom, var(--green-mid), transparent);
+    animation: sp 2s ease-in-out infinite;
+  }
+
+  @keyframes sp {
+    0%,100%{transform:scaleY(1);opacity:0.5}
+    50%{transform:scaleY(0.6);opacity:1}
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    width: 100%; max-width: 800px; margin: 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--green-mid), transparent);
+  }
+
+  /* ── IMAGE SECTION ── */
+  .img-section {
+    padding: 5rem 2rem;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 1.5rem;
+    background: linear-gradient(180deg, transparent, rgba(209,250,229,0.25), transparent);
+  }
+
+  .section-eyebrow {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.55rem; letter-spacing: 0.4em;
+    color: var(--text-dim); text-transform: uppercase;
+  }
+
+  .img-frame {
+    width: 100%; max-width: 500px;
+    border-radius: 24px; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(74,222,128,0.15), 0 0 0 1px var(--border);
+  }
+
+  .img-frame img {
+    width: 100%; display: block;
+    border-radius: 24px;
+  }
+
+  /* ── LORE ── */
+  .lore-section {
+    padding: 5rem 2rem;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 2.5rem;
+    max-width: 700px; margin: 0 auto;
+  }
+
+  .lore-heading {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    text-align: center; line-height: 1.15;
+    letter-spacing: -0.03em;
+  }
+
+  .lore-heading span { color: var(--green-deep); }
+
+  .lore-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 2.5rem;
+    width: 100%;
+    box-shadow: 0 8px 40px rgba(74,222,128,0.08);
+  }
+
+  .lore-card p {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300; font-size: 1rem;
+    line-height: 1.85; color: var(--muted);
+    text-align: center; margin-bottom: 1.5rem;
+  }
+
+  .lore-card p:last-child { margin-bottom: 0; }
+  .lore-card p strong { color: var(--dark); font-weight: 600; }
+
+  .lore-reasons {
+    background: var(--green-light);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    display: flex; flex-direction: column; gap: 0.8rem;
+  }
+
+  .lore-reason {
+    display: flex; align-items: flex-start; gap: 0.8rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem; font-weight: 500;
+    color: var(--dark);
+  }
+
+  .reason-num {
+    width: 24px; height: 24px; flex-shrink: 0;
+    background: var(--green-bright);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.65rem; color: white; font-weight: 700;
+  }
+
+  .lore-dot-divider {
+    width: 8px; height: 8px;
+    background: var(--green-bright);
+    border-radius: 50%;
+    margin: 0.5rem auto;
+    box-shadow: 0 0 10px rgba(74,222,128,0.5);
+  }
+
+  /* ── BUY SECTION ── */
+  .buy-section {
+    padding: 5rem 2rem;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 2.5rem;
+    background: linear-gradient(135deg, rgba(209,250,229,0.3), rgba(240,253,244,0.5));
+  }
+
+  .buy-heading {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    text-align: center; letter-spacing: -0.03em;
+  }
+
+  .buy-heading span { color: var(--green-deep); }
+
+  /* JUPITER EMBED */
+  .jupiter-wrap {
+    width: 100%; max-width: 420px;
+    border-radius: 24px; overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 40px rgba(74,222,128,0.12);
+    background: white;
+    min-height: 420px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+
+  #jupiter-terminal {
+    width: 100%; min-height: 420px;
+  }
+
+  .buy-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1rem; width: 100%; max-width: 860px;
+  }
+
+  .buy-step {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 18px; padding: 1.4rem;
+    display: flex; flex-direction: column; gap: 0.7rem;
+    box-shadow: 0 4px 18px rgba(74,222,128,0.06);
+    transition: all 0.3s;
+  }
+
+  .buy-step:hover {
+    transform: translateY(-3px);
+    border-color: var(--green-bright);
+    box-shadow: 0 10px 28px rgba(74,222,128,0.12);
+  }
+
+  .step-num {
+    width: 30px; height: 30px;
+    background: var(--dark);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.7rem; color: white;
+  }
+
+  .step-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600; font-size: 0.88rem; color: var(--dark);
+  }
+
+  .step-desc {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300; font-size: 0.78rem;
+    color: var(--muted); line-height: 1.6;
+  }
+
+  .step-action {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.45rem 0.9rem; border-radius: 20px;
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.58rem; letter-spacing: 0.08em;
+    text-decoration: none; transition: all 0.2s;
+    margin-top: auto; width: fit-content;
+    background: var(--green-light);
+    color: var(--green-deep);
+    border: 1px solid var(--green-mid);
+  }
+
+  .step-action:hover { background: var(--green-deep); color: white; border-color: var(--green-deep); }
+
+  .step-action.dark-btn {
+    background: var(--dark); color: white; border-color: var(--dark);
+  }
+
+  .step-action.dark-btn:hover { background: var(--green-deep); border-color: var(--green-deep); }
+
+  /* CA BIG */
+  .ca-copy-big {
+    display: flex; align-items: center; gap: 0.8rem;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 16px; padding: 1rem 1.4rem;
+    cursor: pointer; transition: all 0.3s;
+    max-width: 560px; width: 100%;
+    box-shadow: 0 4px 18px rgba(74,222,128,0.07);
+  }
+
+  .ca-copy-big:hover { border-color: var(--green-bright); box-shadow: 0 8px 28px rgba(74,222,128,0.15); }
+
+  .ca-copy-big .label {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.52rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--green-deep);
+    background: var(--green-light);
+    padding: 0.25rem 0.6rem; border-radius: 6px; white-space: nowrap;
+  }
+
+  .ca-copy-big .addr {
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.58rem; color: var(--muted);
+    flex: 1; word-break: break-all;
+  }
+
+  .ca-copy-big .copy-btn {
+    flex-shrink: 0; padding: 0.4rem 0.8rem;
+    background: var(--green-light);
+    border: 1px solid var(--green-mid);
+    border-radius: 8px;
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.52rem; color: var(--green-deep);
+    letter-spacing: 0.1em; cursor: pointer;
+    transition: all 0.2s; white-space: nowrap;
+  }
+
+  .ca-copy-big:hover .copy-btn { background: var(--green-deep); color: white; border-color: var(--green-deep); }
+
+  /* ── COMMUNITY ── */
+  .community-section {
+    padding: 4rem 2rem 5rem;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 1.8rem;
+  }
+
+  .social-row { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+
+  .social-btn {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.85rem 2rem;
+    border: 1.5px solid var(--border);
+    background: white; color: var(--muted);
+    text-decoration: none;
+    border-radius: 50px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600; font-size: 0.82rem;
+    transition: all 0.3s;
+    box-shadow: 0 2px 12px rgba(74,222,128,0.06);
+  }
+
+  .social-btn:hover {
+    border-color: var(--dark); color: var(--dark);
+    box-shadow: 0 6px 22px rgba(10,26,16,0.1);
+    transform: translateY(-2px);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.8rem 2.5rem;
+    display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 1rem;
+    background: rgba(255,255,255,0.95);
+  }
+
+  .footer-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 0.9rem;
+    color: var(--dark); letter-spacing: -0.03em;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+
+  .footer-logo .dot-sm {
+    width: 8px; height: 8px;
+    background: var(--green-bright); border-radius: 50%;
+    box-shadow: 0 0 6px rgba(74,222,128,0.6);
+  }
+
+  .footer-disclaimer {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6rem; color: var(--text-dim);
+    max-width: 360px; text-align: right; line-height: 1.6;
+  }
+
+  /* ── TOAST ── */
+  .copy-toast {
+    position: fixed; bottom: 2rem; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--dark);
+    color: var(--green-bright);
+    font-family: 'Syne Mono', monospace;
+    font-size: 0.68rem; letter-spacing: 0.1em;
+    padding: 0.6rem 1.6rem; border-radius: 20px;
+    opacity: 0; transition: all 0.3s;
+    pointer-events: none; z-index: 999;
+    box-shadow: 0 8px 25px rgba(10,26,16,0.2);
+  }
+
+  .copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @keyframes fadeUp {
+    from{opacity:0;transform:translateY(22px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+
+  @media (max-width: 640px) {
+    nav { padding: 1rem 1.2rem; }
+    .hero { padding: 3rem 1.2rem 5rem; }
+    .footer-disclaimer { text-align: left; }
+    footer { flex-direction: column; }
+    .lore-card { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="wrap">
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      <span class="dot-icon"></span>
+      dot
+    </div>
+    <div class="nav-links">
+      <a href="#buy" class="nav-btn buy-nav">Buy dot</a>
+      <a href="https://dexscreener.com/solana/7e556hwqHmQKNByQ48e5gWyrB52P3nZUQtpyocuApump" target="_blank" class="nav-btn">Chart</a>
+    </div>
+  </nav>
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span class="ticker-item">dot <span>·</span></span>
+      <span class="ticker-item">no pump <span>·</span></span>
+      <span class="ticker-item">no fun <span>·</span></span>
+      <span class="ticker-item">just dot <span>·</span></span>
+      <span class="ticker-item">stays true to itself <span>·</span></span>
+      <span class="ticker-item">solana <span>·</span></span>
+      <span class="ticker-item">the real one <span>·</span></span>
+      <span class="ticker-item">dot <span>·</span></span>
+      <span class="ticker-item">no pump <span>·</span></span>
+      <span class="ticker-item">no fun <span>·</span></span>
+      <span class="ticker-item">just dot <span>·</span></span>
+      <span class="ticker-item">stays true to itself <span>·</span></span>
+      <span class="ticker-item">solana <span>·</span></span>
+      <span class="ticker-item">the real one <span>·</span></span>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">Solana · A Brand Without Pump or Fun</div>
+
+    <div class="big-dot-wrap">
+      <div class="big-dot-ring"></div>
+      <div class="big-dot-ring2"></div>
+      <img src="1000473585.jpg" class="big-dot-img" alt="dot"
+        onerror="this.style.display='none'"/>
+    </div>
+
+    <h1 class="hero-title">
+      <span class="glitch" data-text="dot">dot</span>
+    </h1>
+
+    <p class="hero-sub">
+      A brand without 'pump' or 'fun'.<br/>
+      <span>A brand that stays true to itself.</span>
+    </p>
+
+    <div class="hero-ctas">
+      <a href="#buy" class="btn-green">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 12C8 8 16 8 16 12C16 16 8 16 8 12" stroke="currentColor" stroke-width="2" fill="none"/>
+          <circle cx="12" cy="12" r="2" fill="currentColor"/>
+        </svg>
+        Buy dot
+      </a>
+      <a href="https://dexscreener.com/solana/7e556hwqHmQKNByQ48e5gWyrB52P3nZUQtpyocuApump" target="_blank" class="btn-outline">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="16 7 22 7 22 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        DexScreener
+      </a>
+    </div>
+
+    <div class="ca-box" onclick="copyCA()">
+      <span class="ca-label">CA</span>
+      <span class="ca-address">7e556hwqHmQKNByQ48e5gWyrB52P3nZUQtpyocuApump</span>
+      <span class="ca-copy">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2"/>
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+        </svg>
+      </span>
+    </div>
+
+    <div class="scroll-hint">
+      <span>scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- LORE IMAGE -->
+  <section class="img-section">
+    <span class="section-eyebrow">The Announcement</span>
+    <div class="img-frame">
+      <img src="1000473584.jpg" alt="dot rebrand announcement"/>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- LORE TEXT -->
+  <section class="lore-section">
+    <h2 class="lore-heading">The Story of <span>dot</span></h2>
+
+    <div class="lore-card">
+      <div class="lore-dot-divider"></div>
+      <p>Today, we're proud to announce a new chapter in our journey as we rebrand to <strong>dot</strong> — a brand without 'pump' or 'fun'. A brand that stays true to itself.</p>
+
+      <p>The decision to drop 'pump' and 'fun' was not an easy one, but a necessary one if we wish to stay in touch with our culture. This decision was made because:</p>
+
+      <div class="lore-reasons">
+        <div class="lore-reason">
+          <span class="reason-num">1</span>
+          Coins no longer 'pump' as they once did
+        </div>
+        <div class="lore-reason">
+          <span class="reason-num">2</span>
+          The ecosystem is not as 'fun' as it once was
+        </div>
+      </div>
+
+      <p>We'd like to thank every single one of our users for helping shape the legacy pump fun brand into what it is today, and for those who'll shape our next chapter as we continue to evolve as the leading coin ecosystem on the internet.</p>
+
+      <div class="lore-dot-divider"></div>
+      <p><strong>From all of the team at dot, thank you.</strong></p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- BUY SECTION -->
+  <section class="buy-section" id="buy">
+    <span class="section-eyebrow">Get In</span>
+    <h2 class="buy-heading">Buy <span>dot</span></h2>
+
+    <!-- JUPITER TERMINAL EMBEDDED -->
+    <div class="jupiter-wrap">
+      <div id="jupiter-terminal"></div>
+    </div>
+
+    <div class="buy-steps">
+      <div class="buy-step">
+        <div class="step-num">01</div>
+        <div class="step-title">Get a Wallet</div>
+        <div class="step-desc">Download Phantom or Solflare. Create your wallet. Secure your seed phrase — never share it.</div>
+        <a href="https://phantom.app" target="_blank" class="step-action">↗ Phantom</a>
+      </div>
+      <div class="buy-step">
+        <div class="step-num">02</div>
+        <div class="step-title">Buy SOL</div>
+        <div class="step-desc">Purchase SOL from any exchange. Send to your Phantom wallet address.</div>
+        <a href="https://coinbase.com" target="_blank" class="step-action">↗ Get SOL</a>
+      </div>
+      <div class="buy-step">
+        <div class="step-num">03</div>
+        <div class="step-title">Swap Above</div>
+        <div class="step-desc">Use the Jupiter widget above. dot CA is pre-filled. Set slippage 1–3% and swap.</div>
+        <a href="#buy" class="step-action dark-btn">↑ Swap Now</a>
+      </div>
+      <div class="buy-step">
+        <div class="step-num">04</div>
+        <div class="step-title">Track Live</div>
+        <div class="step-desc">Monitor price and volume on DexScreener in real time.</div>
+        <a href="https://dexscreener.com/solana/7e556hwqHmQKNByQ48e5gWyrB52P3nZUQtpyocuApump" target="_blank" class="step-action">↗ Chart</a>
+      </div>
+    </div>
+
+    <div class="ca-copy-big" onclick="copyCA()">
+      <span class="label">Contract Address</span>
+      <span class="addr">7e556hwqHmQKNByQ48e5gWyrB52P3nZUQtpyocuApump</span>
+      <span class="copy-btn">Copy CA</span>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- COMMUNITY -->
+  <section class="community-section">
+    <span class="section-eyebrow">Join Us</span>
+    <div class="social-row">
+      <a href="https://twitter.com/i/communities/2012207076999618902" target="_blank" class="social-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+        X Community
+      </a>
+      <a href="#buy" class="btn-green" style="border-radius:50px;text-decoration:none;">Buy dot</a>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">
+      <span class="dot-sm"></span>
+      dot · 2026
+    </div>
+    <div class="footer-disclaimer">
+      dot is a community token on Solana. Not financial advice.
+      No pump. No fun. Just dot.
+    </div>
+  </footer>
+
+</div>
+
+<div class="copy-toast" id="toast">CA Copied ✓</div>
+
+<!-- JUPITER TERMINAL -->
+<script src="https://terminal.jup.ag/main-v4.js" data-preload></script>
+
+<script>
+// ── COPY CA ──
+function copyCA() {
+  navigator.clipboard.writeText('7e556hwqHmQKNByQ48e5gWyrB52P3nZUQtpyocuApump').then(() => {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  });
+}
+
+// ── JUPITER TERMINAL INIT ──
+window.addEventListener('load', () => {
+  if (window.Jupiter) {
+    window.Jupiter.init({
+      displayMode: 'integrated',
+      integratedTargetId: 'jupiter-terminal',
+      endpoint: 'https://mainnet.helius-rpc.com/?api-key=mainnet',
+      defaultExplorer: 'Solana Explorer',
+      formProps: {
+        initialOutputMint: '7e556hwqHmQKNByQ48e5gWyrB52P3nZUQtpyocuApump',
+        initialInputMint: 'So11111111111111111111111111111111111111112',
+      },
+    });
+  }
+});
+
+// ── CANVAS ──
+const canvas = document.getElementById('bg-canvas');
+const ctx = canvas.getContext('2d');
+let W, H, pts = [];
+
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+
+function init() {
+  pts = [];
+  for (let i = 0; i < 60; i++) {
+    pts.push({
+      x: Math.random() * W, y: Math.random() * H,
+      r: Math.random() * 3.5 + 1,
+      o: Math.random() * 0.08 + 0.02,
+      dx: (Math.random() - 0.5) * 0.2,
+      dy: (Math.random() - 0.5) * 0.12,
+    });
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  const g = ctx.createRadialGradient(W * 0.5, H * 0.3, 0, W * 0.5, H * 0.3, W * 0.6);
+  g.addColorStop(0, 'rgba(74,222,128,0.04)');
+  g.addColorStop(1, 'transparent');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+  pts.forEach(p => {
+    p.x += p.dx; p.y += p.dy;
+    if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+    if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(94,234,212,${p.o})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(draw);
+}
+
+window.addEventListener('resize', () => { resize(); init(); });
+resize(); init(); draw();
+
+// ── PARALLAX ──
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  const title = document.querySelector('.hero-title');
+  if (title) title.style.transform = `translateY(${y * 0.08}px)`;
+});
+</script>
+</body>
+</html>
